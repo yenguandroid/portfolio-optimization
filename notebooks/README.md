@@ -3,6 +3,7 @@
 | Notebook | Task | Description |
 |---|---|---|
 | `task1_eda.ipynb` | Task 1 | Data extraction, cleaning, EDA, stationarity testing, and risk metrics for TSLA, BND, and SPY (2015-01-01 – 2026-06-30). |
+| `task2_forecasting.ipynb` | Task 2 | Chronological train/test split, ARIMA/SARIMA (via `auto_arima`) and LSTM forecasting models for TSLA closing price, with MAE/RMSE/MAPE comparison. Requires `data/processed/combined_prices.csv` from Task 1. |
 
 ## Running
 
