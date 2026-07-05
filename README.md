@@ -16,7 +16,7 @@ portfolio-optimization/
 │   ├── data_loader.py       # Fetch/clean/combine price data (YFinance)
 │   ├── eda.py                # Rolling stats, outlier detection, ADF test, plots
 │   ├── risk_metrics.py       # VaR (historical & parametric), Sharpe Ratio
-│   ├── modeling.py           # Chronological split, ARIMA/SARIMA (auto_arima), LSTM sequences/model
+│   ├── modeling.py           # Chronological split, ARIMA/SARIMA (auto_arima), LSTM sequences/model, walk-forward validation, future forecast w/ CI
 │   └── evaluation.py         # MAE, RMSE, MAPE, model comparison table
 ├── tests/                   # pytest unit tests for src/
 ├── scripts/                  # CLI entry points (e.g. run_eda.py)
@@ -75,6 +75,27 @@ Covers:
    and a scaffold cell for experimenting with LSTM architecture/hyperparameters.
 5. **Evaluation** — MAE, RMSE, MAPE for both models via `src/evaluation.py`, assembled into a
    single comparison table, plus a written discussion of the results.
+
+## Task 3 — Future Price Forecasts with Confidence Intervals
+
+**Notebook:** [`notebooks/task3_future_forecast.ipynb`](notebooks/task3_future_forecast.ipynb)
+(requires `data/processed/combined_prices.csv` from Task 1; reuses the winning ARIMA order
+identified in Task 2)
+
+Motivated by Task 2's single ~18-month static forecast flattening to a near-constant
+trajectory (an expected property of long-horizon iterative forecasting, not a modeling
+defect), this task adds:
+
+1. **Walk-forward (rolling-origin) validation** — repeatedly fit on data up to a rolling
+   origin, forecast a short horizon (a trading week), score it, advance the origin, and
+   repeat. Gives an honest, decision-relevant accuracy estimate at a horizon GMF could
+   realistically act on, and shows error growth by step-ahead horizon (`src/modeling.py`:
+   `walk_forward_arima_forecast`, `summarize_walk_forward`).
+2. **Final future forecast with confidence intervals** — refits the chosen ARIMA order on all
+   available history and projects forward past the end of the dataset, with a 95% confidence
+   interval that widens with the forecast horizon (`src/modeling.py`: `forecast_future`).
+3. **Discussion** of trend, the meaning of widening uncertainty, and how the forecast (and its
+   honest limits) should inform — not dictate — the portfolio construction in Task 4.
 
 ## Running Tests
 
