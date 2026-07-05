@@ -58,3 +58,46 @@ def test_create_sequences_raises_if_window_too_large():
     values = np.arange(5)
     with pytest.raises(ValueError):
         create_sequences(values, window=10)
+
+
+def test_select_arima_order_returns_documented_order_dict():
+    """
+    Model-selection step: should return plain data describing the chosen
+    order (not a forecasting-ready model), so selection and final refit
+    stay decoupled. Uses a small, clearly seasonal-free synthetic series
+    so the search itself runs fast and offline (no network needed --
+    pmdarima fits locally on the array).
+    """
+    from src.modeling import select_arima_order
+
+    rng = np.random.default_rng(0)
+    series = pd.Series(np.cumsum(rng.normal(0, 1, 80)) + 100)  # random-walk-like
+
+    selection = select_arima_order(series, seasonal=False, max_p=2, max_q=2, max_d=1)
+
+    assert set(selection.keys()) == {"order", "seasonal_order", "aic", "seasonal", "m"}
+    assert len(selection["order"]) == 3
+    assert isinstance(selection["aic"], float)
+    assert selection["seasonal"] is False
+
+
+def test_fit_final_arima_and_forecast_final_arima_roundtrip():
+    """
+    Final-refit step: given a chosen order, fit a statsmodels SARIMAX
+    directly and confirm forecasting produces the right shapes. This
+    exercises the selection/refit split end-to-end using a fixed,
+    already-known order (skipping the search) to keep the test fast.
+    """
+    from src.modeling import fit_final_arima, forecast_final_arima
+
+    rng = np.random.default_rng(1)
+    series = pd.Series(np.cumsum(rng.normal(0, 1, 100)) + 50)
+
+    results = fit_final_arima(series, order=(1, 1, 1), seasonal_order=(0, 0, 0, 0))
+    n_periods = 10
+    forecast, conf_int = forecast_final_arima(results, n_periods=n_periods)
+
+    assert forecast.shape == (n_periods,)
+    assert conf_int.shape == (n_periods, 2)
+    # lower bound of CI should not exceed the upper bound
+    assert (conf_int[:, 0] <= conf_int[:, 1]).all()

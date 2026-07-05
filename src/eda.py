@@ -124,6 +124,54 @@ def plot_daily_returns(df: pd.DataFrame, ticker: str, figsize=(12, 4)):
     return fig
 
 
+def plot_rolling_mean(df: pd.DataFrame, ticker: str, window: int = 30, figsize=(12, 4)):
+    """
+    Plot the rolling mean of daily returns for a single ticker — the
+    short-term drift/momentum signal, as distinct from rolling volatility
+    (see plot_rolling_volatility). A rolling mean sitting persistently
+    above zero indicates a short-term upward drift in returns; below zero
+    indicates downward drift; oscillation around zero indicates no
+    persistent short-term trend in returns.
+    """
+    subset = df[df["Ticker"] == ticker]
+    col = f"Rolling_Mean_{window}"
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.plot(subset["Date"], subset[col], color="mediumblue")
+    ax.axhline(0, color="grey", linestyle="--", linewidth=1)
+    ax.set_title(f"{ticker} Rolling {window}-Day Mean of Daily Return")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Rolling Mean Return")
+    fig.tight_layout()
+    return fig
+
+
+def plot_rolling_mean_and_volatility(df: pd.DataFrame, ticker: str, window: int = 30, figsize=(12, 6)):
+    """
+    Stacked two-panel view of rolling mean (drift) and rolling std
+    (volatility) of daily returns for a single ticker, sharing a date
+    axis so short-term trend and short-term risk can be read side by
+    side (e.g. spotting periods where volatility spikes while drift
+    turns negative, a classic market-stress signature).
+    """
+    subset = df[df["Ticker"] == ticker]
+    mean_col = f"Rolling_Mean_{window}"
+    std_col = f"Rolling_Std_{window}"
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize, sharex=True)
+    ax1.plot(subset["Date"], subset[mean_col], color="mediumblue")
+    ax1.axhline(0, color="grey", linestyle="--", linewidth=1)
+    ax1.set_title(f"{ticker} Rolling {window}-Day Mean of Daily Return (Drift)")
+    ax1.set_ylabel("Rolling Mean Return")
+
+    ax2.plot(subset["Date"], subset[std_col], color="darkorange")
+    ax2.set_title(f"{ticker} Rolling {window}-Day Std of Daily Return (Volatility)")
+    ax2.set_xlabel("Date")
+    ax2.set_ylabel("Rolling Std Dev")
+
+    fig.tight_layout()
+    return fig
+
+
 def plot_rolling_volatility(df: pd.DataFrame, ticker: str, window: int = 30, figsize=(12, 4)):
     subset = df[df["Ticker"] == ticker]
     col = f"Rolling_Std_{window}"
