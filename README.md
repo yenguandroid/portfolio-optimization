@@ -15,7 +15,9 @@ portfolio-optimization/
 ├── src/                    # Reusable, unit-tested source modules
 │   ├── data_loader.py       # Fetch/clean/combine price data (YFinance)
 │   ├── eda.py                # Rolling stats, outlier detection, ADF test, plots
-│   └── risk_metrics.py       # VaR (historical & parametric), Sharpe Ratio
+│   ├── risk_metrics.py       # VaR (historical & parametric), Sharpe Ratio
+│   ├── modeling.py           # Chronological split, ARIMA/SARIMA (auto_arima), LSTM sequences/model
+│   └── evaluation.py         # MAE, RMSE, MAPE, model comparison table
 ├── tests/                   # pytest unit tests for src/
 ├── scripts/                  # CLI entry points (e.g. run_eda.py)
 ├── requirements.txt
@@ -54,6 +56,25 @@ Or run the equivalent pipeline from the command line (fetches data and prints a 
 ```bash
 python scripts/run_eda.py
 ```
+
+## Task 2 — Build Time Series Forecasting Models
+
+**Notebook:** [`notebooks/task2_forecasting.ipynb`](notebooks/task2_forecasting.ipynb)
+(requires `data/processed/combined_prices.csv` from Task 1 — run Task 1 first)
+
+Covers:
+1. **Chronological train/test split** — train through end of 2024, test on 2025–mid-2026 (no
+   shuffling, to preserve temporal order).
+2. **ARIMA/SARIMA** — ACF/PACF inspection, then `auto_arima` (pmdarima) search over `(p, d, q)`
+   and, for comparison, seasonal `(P, D, Q, m)`; forecasts generated for the full test period
+   with confidence intervals.
+3. **LSTM** — 60-day input windows, a stacked 2-layer LSTM (50 units each) with dropout, trained
+   with early stopping; multi-step test forecasts generated iteratively (feeding each
+   prediction back in as the next input).
+4. **Parameter optimization** — `auto_arima`'s stepwise AIC search for ARIMA/SARIMA; guidance
+   and a scaffold cell for experimenting with LSTM architecture/hyperparameters.
+5. **Evaluation** — MAE, RMSE, MAPE for both models via `src/evaluation.py`, assembled into a
+   single comparison table, plus a written discussion of the results.
 
 ## Running Tests
 
