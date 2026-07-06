@@ -17,7 +17,8 @@ portfolio-optimization/
 │   ├── eda.py                # Rolling stats, outlier detection, ADF test, plots
 │   ├── risk_metrics.py       # VaR (historical & parametric), Sharpe Ratio
 │   ├── modeling.py           # Chronological split, ARIMA/SARIMA (auto_arima), LSTM sequences/model, walk-forward validation, future forecast w/ CI
-│   └── evaluation.py         # MAE, RMSE, MAPE, model comparison table
+│   ├── evaluation.py         # MAE, RMSE, MAPE, model comparison table
+│   └── portfolio.py          # MPT: expected returns, covariance matrix, efficient frontier, Max Sharpe / Min Vol portfolios
 ├── tests/                   # pytest unit tests for src/
 ├── scripts/                  # CLI entry points (e.g. run_eda.py)
 ├── requirements.txt
@@ -96,6 +97,30 @@ defect), this task adds:
    interval that widens with the forecast horizon (`src/modeling.py`: `forecast_future`).
 3. **Discussion** of trend, the meaning of widening uncertainty, and how the forecast (and its
    honest limits) should inform — not dictate — the portfolio construction in Task 4.
+
+## Task 4 — Optimize Portfolio Based on Forecast
+
+**Notebook:** [`notebooks/task4_portfolio_optimization.ipynb`](notebooks/task4_portfolio_optimization.ipynb)
+(requires Task 1's processed data; internally re-derives the Task 2/3 ARIMA order and future
+forecast so it runs standalone)
+
+Modern Portfolio Theory applied to TSLA, BND, and SPY:
+
+1. **Expected returns** — TSLA's expected return is derived from the Task 3 price forecast
+   (converted to an implied annualized return via `tsla_forecast_annual_return_from_prices`);
+   BND and SPY use their historical average daily returns, annualized
+   (`src/portfolio.py`: `build_expected_returns`).
+2. **Covariance matrix** — computed from historical daily returns across all three assets
+   (`compute_covariance_matrix`), visualized as a heatmap.
+3. **Efficient frontier** — traced via constrained optimization (`scipy.optimize`, SLSQP): for
+   a range of target returns, find the minimum-volatility long-only portfolio achieving at
+   least that return (`compute_efficient_frontier`), plotted alongside a random-portfolio cloud
+   for visual confirmation.
+4. **Key portfolios identified and marked** — the Max Sharpe Ratio (tangency) portfolio and the
+   Min Volatility portfolio (`optimize_max_sharpe`, `optimize_min_volatility`).
+5. **Recommendation** — a final chosen portfolio with weights, expected return, volatility, and
+   Sharpe Ratio, plus a written justification weighing risk-adjusted return against the
+   uncertainty carried over from Task 3's forecast.
 
 ## Running Tests
 

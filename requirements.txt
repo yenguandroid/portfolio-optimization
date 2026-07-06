@@ -4,6 +4,9 @@ numpy>=1.26.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
 scipy>=1.12.0
+# Task 4 (portfolio optimization) uses scipy.optimize directly (already listed above).
+# PyPortfolioOpt is an equally valid alternative per the task instructions; uncomment if preferred:
+# pyportfolioopt>=1.5.5
 statsmodels>=0.14.1
 scikit-learn>=1.4.0
 pmdarima>=2.0.4
