@@ -18,7 +18,8 @@ portfolio-optimization/
 │   ├── risk_metrics.py       # VaR (historical & parametric), Sharpe Ratio
 │   ├── modeling.py           # Chronological split, ARIMA/SARIMA (auto_arima), LSTM sequences/model, walk-forward validation, future forecast w/ CI
 │   ├── evaluation.py         # MAE, RMSE, MAPE, model comparison table
-│   └── portfolio.py          # MPT: expected returns, covariance matrix, efficient frontier, Max Sharpe / Min Vol portfolios
+│   ├── portfolio.py          # MPT: expected returns, covariance matrix, efficient frontier, Max Sharpe / Min Vol portfolios
+│   └── backtest.py           # Buy-and-hold / monthly-rebalanced portfolio simulation, total/annualized return, Sharpe, max drawdown
 ├── tests/                   # pytest unit tests for src/
 ├── scripts/                  # CLI entry points (e.g. run_eda.py)
 ├── requirements.txt
@@ -121,6 +122,27 @@ Modern Portfolio Theory applied to TSLA, BND, and SPY:
 5. **Recommendation** — a final chosen portfolio with weights, expected return, volatility, and
    Sharpe Ratio, plus a written justification weighing risk-adjusted return against the
    uncertainty carried over from Task 3's forecast.
+
+## Task 5 — Strategy Backtesting
+
+**Notebook:** [`notebooks/task5_backtest.ipynb`](notebooks/task5_backtest.ipynb)
+(requires Task 1's processed data; internally re-derives the Task 4 optimal weights so it runs
+standalone)
+
+Validates the Task 4 portfolio against a simple passive benchmark over the same held-out
+period used as Task 2's test set (January 2025 onward — data never used for training):
+
+1. **Benchmark** — a static 60% SPY / 40% BND portfolio.
+2. **Simulation** — both a buy-and-hold version (weights drift with relative asset
+   performance) and a monthly-rebalanced version (reset to target weights at each calendar
+   month) of the Task 4 recommended portfolio, via `src/backtest.py`: `simulate_portfolio`.
+3. **Performance analysis** — a cumulative-value comparison plot, plus a metrics table (Total
+   Return, Annualized Return, Sharpe Ratio, Max Drawdown) for strategy and benchmark alike,
+   via `backtest_metrics` / `compare_backtest`.
+4. **Conclusion** — a written reflection on whether the forecast-driven strategy actually
+   outperformed the passive benchmark, what that implies about the model-driven approach's
+   viability, and this backtest's limitations (single historical window, no transaction costs,
+   static weights, and the fact that the whole strategy inherits Task 3's forecast risk).
 
 ## Running Tests
 
